@@ -23,7 +23,7 @@ DocumentKind = Literal["filing", "cb_statement", "news", "research", "earnings"]
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    database_url: str = "postgresql://copilot:copilot@localhost:5432/copilot"
+    database_url: str = "postgresql://copilot:copilot@localhost:5433/copilot"
     data_dir: Path = Path("data")
     sources_file: Path = Path("sources.yaml")
 

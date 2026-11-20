@@ -83,7 +83,7 @@ uv run pytest
 That runs the unit tests: offline, mocked HTTP.
 
 ```bash
-TEST_DATABASE_URL=postgresql://copilot:copilot@localhost:5432/copilot_test uv run pytest -m integration
+TEST_DATABASE_URL=postgresql://copilot:copilot@localhost:5433/copilot_test uv run pytest -m integration
 ```
 
 That runs the integration tests. They **drop and recreate the schema** in that database, so create it first with:
