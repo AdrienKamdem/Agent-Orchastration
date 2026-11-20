@@ -1,0 +1,68 @@
+# What to ingest. Infrastructure settings and secrets go in .env instead (see .env.example).
+#
+# Feed URLs were correct when written, but sites move them. If a source fails at
+# discovery, check its URL first.
+
+watchlist:
+  - { ticker: NVDA, name: NVIDIA }
+  - { ticker: MRVL, name: Marvell Technology }
+  - { ticker: ASML, name: ASML Holding }          # foreign issuer: 20-F / 6-K
+  - { ticker: TSM,  name: Taiwan Semiconductor }  # foreign issuer: 20-F / 6-K
+  - { ticker: AVGO, name: Broadcom }
+  - { ticker: IONQ, name: IonQ }
+  - { ticker: QBTS, name: D-Wave Quantum }
+  - { ticker: TTE,  name: TotalEnergies }         # foreign issuer: 20-F / 6-K
+
+sources:
+  # ---------------------------------------------------------------- SEC filings
+  - id: edgar
+    type: edgar
+    kind: filing
+    forms: [10-K, 10-Q, 8-K, 20-F, 6-K]
+    exhibit_forms: [8-K, 6-K]          # earnings releases live in EX-99.1
+    exhibit_types: [EX-99.1, EX-99.2]
+    lookback_days: 365
+    max_filings_per_ticker: 8
+
+  # ---------------------------------------------------------------- central banks
+  - id: fed_monetary
+    type: rss
+    kind: cb_statement
+    url: https://www.federalreserve.gov/feeds/press_monetary.xml
+    fetch_full_page: true
+    lookback_days: 365
+
+  - id: ecb_press
+    type: rss
+    kind: cb_statement
+    url: https://www.ecb.europa.eu/rss/press.html
+    fetch_full_page: true
+    lookback_days: 180
+
+  - id: boe_news
+    type: rss
+    kind: cb_statement
+    url: https://www.bankofengland.co.uk/rss/news
+    fetch_full_page: true
+    lookback_days: 180
+
+  # ---------------------------------------------------------------- news (headline + summary only)
+  # One feed per watchlist company. Only the feed's title/summary/link are stored, not
+  # the article, so there's no scraping of publisher pages. Disabled by default: check
+  # the provider's terms are fine for your use, then set enabled: true.
+  - id: news_google
+    type: rss
+    kind: news
+    enabled: false
+    per_watchlist: true
+    url: "https://news.google.com/rss/search?q={name}+stock&hl=en-US&gl=US&ceid=US:en"
+    fetch_full_page: false
+    max_items: 20
+    lookback_days: 14
+
+  # ---------------------------------------------------------------- local PDFs
+  # Drop research PDFs / transcripts you have rights to into data/inbox/.
+  - id: pdf_inbox
+    type: pdf_inbox
+    kind: research
+    path: inbox

@@ -4,6 +4,27 @@
 > Retrieval agents, Text2SQL and the daily brief all sit downstream of this and are out of scope here.
 > Timeline: weeks 1–3 of the flagship plan.
 
+## Implementation status
+
+The skeleton for steps 0–7 is implemented in `src/copilot/ingestion/` and tested offline
+(synthetic fixtures, mocked HTTP, real Postgres). Still to do:
+
+- [ ] **Validate against live sources** on your machine. Feed URLs and real EDGAR layouts
+      can differ from the fixtures, so save one real response per source into
+      `tests/fixtures/` and add a test for each
+- [ ] Check section detection on real 10-K **and** 20-F filings (ASML, TSM, TTE)
+- [ ] Schedule it (cron / GitHub Actions)
+- [ ] Optional: RSS feeds for Fed FEDS notes / BIS papers that link to PDFs
+
+Differences from the plan below, decided during implementation:
+- Plain SQL migrations with a small runner (`db.migrate`) instead of Alembic. One less tool
+  to learn now; switch if migrations get complex.
+- Token counts use a word+punctuation regex instead of `tiktoken`. That avoids a download
+  at runtime, and bge has its own tokenizer anyway. The 400-token default leaves headroom
+  under bge's 512.
+- A `HashingEmbedder` (no dependencies) for tests and smoke runs, next to the real model.
+- `lxml` for EDGAR HTML instead of `selectolax` (already pulled in by trafilatura).
+
 ---
 
 ## 1. What "done" looks like
@@ -211,11 +232,14 @@ The two interfaces that matter most:
 ```python
 class Connector(Protocol):
     source_id: str
+
     def discover(self, cursor: dict | None) -> tuple[list[DiscoveredItem], dict]: ...
-    def fetch(self, item: DiscoveredItem) -> RawDocument: ...   # bytes + headers + metadata
+    def fetch(self, item: DiscoveredItem) -> RawDocument: ...  # bytes + headers + metadata
+
 
 class Parser(Protocol):
     version: str
+
     def can_parse(self, raw: RawDocument) -> bool: ...
     def parse(self, raw: RawDocument) -> ParsedDocument: ...
 ```

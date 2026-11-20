@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel><title>News search</title>
+<item>
+  <title>Chipmaker raises data center guidance (synthetic)</title>
+  <link>https://news.example.com/articles/123?utm_source=rss&amp;id=123</link>
+  <guid>https://news.example.com/articles/123</guid>
+  <pubDate>Wed, 18 Nov 2026 12:00:00 GMT</pubDate>
+  <description>&lt;p&gt;The company said &lt;b&gt;accelerator&lt;/b&gt; demand remained strong.&lt;/p&gt;</description>
+</item>
+</channel></rss>
